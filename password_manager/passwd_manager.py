@@ -92,9 +92,16 @@ if option == "1":
 elif option == "2":
     entered_hashed_master_passwd, current_hashed_master_password = check_master_passwd()
     if entered_hashed_master_passwd == current_hashed_master_password:
-        if os.path.exists("password_manager/vault.json") or os.path.getsize("password_manager/vault.json") == 0 or (os.path.exists("password_manager/vault.json") and json.load(open("password_manager/vault.json")) == {}):
+        if os.path.exists("password_manager/vault.json") and os.path.getsize("password_manager/vault.json") > 0:
             with open("password_manager/vault.json", "r") as file:
-                print(json.load(file))
+                try:
+                    vault_data = json.load(file)
+                    if vault_data == {}:
+                        print("Your vault is currently empty.")
+                    else:
+                        print(vault_data)
+                except json.JSONDecodeError:
+                    print("Your vault is currently empty or corrupted.")
         else:
             print("Your vault is currently empty.")
 
