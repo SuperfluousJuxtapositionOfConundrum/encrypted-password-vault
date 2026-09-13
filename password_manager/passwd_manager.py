@@ -29,12 +29,7 @@ def encrypt_passwd(passwd):
     xor_bin_passwd = ""
 
     #flips the "polarity" of the bits (xor encryption)
-    for byte in bin_passwd:
-        for bit in byte:
-            if bit == "0":
-                xor_bin_passwd += "1"
-            elif bit == "1":
-                xor_bin_passwd += "0"
+    xor_bin_passwd = "".join("0" if bit == "1" else "1" for bit in bin_passwd)
 
     hex_passwd = hex(int(xor_bin_passwd, 2))[2:] #final step by converting the giant binary value into hexadecimal, the [2:] to strip off the beginning "0x"
     return hex_passwd
@@ -44,11 +39,7 @@ def decrypt_passwd(passwd):
     bin_passwd = bin(int(passwd, 16))[2:].zfill(bin_len)
     xor_bin_passwd = ""
 
-    for bit in bin_passwd:
-        if bit == "0":
-            xor_bin_passwd += "1"
-        elif bit == "1":
-            xor_bin_passwd += "0"
+    xor_bin_passwd = "".join("0" if bit == "1" else "1" for bit in bin_passwd)
 
     plain_text = ""
     for i in range(0, len(xor_bin_passwd), 8):
