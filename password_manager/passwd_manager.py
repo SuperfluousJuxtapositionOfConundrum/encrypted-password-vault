@@ -69,7 +69,12 @@ if option == "1":
         website = input("Enter the website name: ")
         username = input("Enter your username: ")
         passwd = gp("Enter your password: ")
-        encrypted_passwd = encrypt_passwd(passwd)
+
+        try:
+            encrypted_passwd = encrypt_passwd(passwd)
+        except ValueError:
+            print("Invalid password, please enter a valid password.")
+            exit()
 
         # fetches the vault's data
         if os.path.exists("password_manager/vault.json") and os.path.getsize("password_manager/vault.json") > 0:
