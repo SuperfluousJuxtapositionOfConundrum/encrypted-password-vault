@@ -25,7 +25,7 @@ def check_master_passwd():
     return entered_hashed_master_passwd, current_hashed_master_password
 
 def encrypt_passwd(passwd):
-    bin_passwd = " ".join(f"{ord(char):08b}" for char in passwd) #converts each character in the password into binary bytes
+    bin_passwd = "".join(f"{ord(char):08b}" for char in passwd) #converts each character in the password into binary bytes
     xor_bin_passwd = ""
 
     #flips the "polarity" of the bits (xor encryption)
@@ -40,8 +40,8 @@ def decrypt_passwd(passwd):
     xor_bin_passwd = ""
 
     xor_bin_passwd = "".join("0" if bit == "1" else "1" for bit in bin_passwd)
-
     plain_text = ""
+    
     for i in range(0, len(xor_bin_passwd), 8):
         byte_chunk = xor_bin_passwd[i:i+8]
         plain_text += chr(int(byte_chunk, 2))
@@ -50,7 +50,7 @@ def decrypt_passwd(passwd):
 
 create_master_passwd()
 
-option = input('Enter "1" to add a new password, "2" to view vault or "3" to view the unencrypted passwords: ')
+option = input('Enter "1" to add a new password, "2" to view vault, "3" to view the unencrypted passwords or "4" to delete a password: ')
 
 if option == "1":
     entered_hashed_master_passwd, current_hashed_master_password = check_master_passwd()
@@ -112,13 +112,38 @@ elif option == "3":
             with open("password_manager/vault.json", "r") as file:
                 data = json.load(file)
                 website_choice = input("Which website's password do you want to view: ").strip()
-                website_passwd = data[website_choice]["password"]
+                try:
+                    website_passwd = data[website_choice]["password"]
+                except KeyError:
+                    print(f"No password found for {website_choice}.")
+                    exit()
+
                 decrypted_passwd = decrypt_passwd(website_passwd)
             
                 if website_choice in data:
                     print(f"Here's your decrypted password to {website_choice}: {decrypted_passwd}")
         else:
             print("No passwords have been added")
+    else:
+        print("Incorrect password, try again!")
+
+elif option == "4":
+    entered_hashed_master_passwd, current_hashed_master_password = check_master_passwd()
+
+    if entered_hashed_master_passwd == current_hashed_master_password:
+        if os.path.exists("password_manager/vault.json") and os.path.getsize("password_manager/vault.json") > 0:
+            with open("password_manager/vault.json", "r") as file:
+                data = json.load(file)
+                website_choice = input("Which website's password do you want to delete: ").strip()
+                if website_choice in data:
+                    del data[website_choice]
+                    with open("password_manager/vault.json", "w") as file:
+                        json.dump(data, file, indent=4)
+                    print(f"Password for {website_choice} deleted successfully.")
+                else:
+                    print(f'The website "{website_choice}" is not in your vault.')
+        else:
+            print("Your vault is currently empty.")
     else:
         print("Incorrect password, try again!")
 
